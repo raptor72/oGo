@@ -7,7 +7,7 @@ import (
 	"unicode"
 )
 
-const winSlash = 92 // mean "\"
+const winSlash = 92 // '\\'
 
 var (
 	ErrInvalidString   = errors.New("invalid string")
