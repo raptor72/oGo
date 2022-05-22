@@ -1,13 +1,13 @@
 package hw03frequencyanalysis
 
 import (
+	"strings"
 	"testing"
 
 	"github.com/stretchr/testify/require"
 )
 
-// Change to true if needed.
-var taskWithAsteriskIsCompleted = false
+var taskWithAsteriskIsCompleted = true
 
 var text = `Как видите, он  спускается  по  лестнице  вслед  за  своим
 	другом   Кристофером   Робином,   головой   вниз,  пересчитывая
@@ -78,5 +78,54 @@ func TestTop10(t *testing.T) {
 			}
 			require.Equal(t, expected, Top10(text))
 		}
+	})
+
+	t.Run("checking handling of spicial symbols", func(t *testing.T) {
+		expected := []string{
+			"and", // 5
+			"cat", // 5
+			"man", // 1
+			"one", // 1
+		}
+		require.Equal(t, Top10("Cat And cat and cat! 'and 'cat' and' cat. and? one man"), expected)
+	})
+
+	t.Run("checking handling '-' inside word and outside", func(t *testing.T) {
+		expected := []string{
+			"какой-то", // 1
+			"какойто",  // 1
+			"не",       // 1
+		}
+		require.Equal(t, Top10("какой-то - не какойто"), expected)
+	})
+
+	t.Run("lexicographic sorting", func(t *testing.T) {
+		var sb strings.Builder
+		frequentWords := []string{"o ", "n ", "t ", "b ", "c ", "d ", "e ", "f ", "g ", "h ", "i ", "j ", "k ", "l ", "m "}
+		rareWords := []string{"p ", "q ", "r ", "s ", "a "}
+		for _, word := range frequentWords {
+			for i := 0; i <= 133; i++ {
+				sb.WriteString(word)
+			}
+		}
+		for _, word := range rareWords {
+			for i := 0; i < 90; i++ {
+				sb.WriteString(word)
+			}
+		}
+		input := sb.String()
+		expected := []string{
+			"b", // 133
+			"c", // 133
+			"d", // 133
+			"e", // 133
+			"f", // 133
+			"g", // 133
+			"h", // 133
+			"i", // 133
+			"j", // 133
+			"k", // 133
+		}
+		require.Equal(t, Top10(input), expected)
 	})
 }
