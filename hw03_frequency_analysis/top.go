@@ -16,8 +16,9 @@ type item struct {
 func Top10(s string) []string {
 	re := regexp.MustCompile(`^[']|[!?.']$`)
 	sliceOfStrings := strings.Fields(s)
-	mapCounter := make(map[string]int)
-	items := []item{}
+	mapCounter := make(map[string]item)
+	items := &[]item{}
+
 	for _, word := range sliceOfStrings {
 		word = strings.ToLower(word)
 		word = re.ReplaceAllString(word, "")
@@ -25,30 +26,29 @@ func Top10(s string) []string {
 			continue
 		}
 		if _, inMap := mapCounter[word]; inMap {
-			mapCounter[word]++
-			for idx, i := range items {
-				if i.Word == word {
-					items = append(items[:idx], items[idx+1:]...)
-					items = append(items, item{word, mapCounter[word]})
-				}
-			}
+			it := mapCounter[word]
+			it.Count++
+			mapCounter[word] = it
 		} else {
-			mapCounter[word] = 1
-			items = append(items, item{word, 1})
+			mapCounter[word] = item{Word: word, Count: 1}
 		}
 	}
+	for _, value := range mapCounter {
+		*items = append(*items, value)
+	}
+	itemSlice := *items
 
-	sort.Slice(items, func(i, j int) bool {
-		if items[i].Count == items[j].Count {
-			return items[i].Word < items[j].Word
+	sort.Slice(itemSlice, func(i, j int) bool {
+		if itemSlice[i].Count == itemSlice[j].Count {
+			return itemSlice[i].Word < itemSlice[j].Word
 		}
-		return items[i].Count > items[j].Count
+		return itemSlice[i].Count > itemSlice[j].Count
 	})
 
 	result := []string{}
 	for i := 0; i < defaultCount; {
-		if i < len(items) {
-			result = append(result, items[i].Word)
+		if i < len(itemSlice) {
+			result = append(result, itemSlice[i].Word)
 			i++
 		} else {
 			break
