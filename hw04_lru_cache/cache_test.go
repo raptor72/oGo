@@ -1,6 +1,7 @@
 package hw04lrucache
 
 import (
+	// "fmt"
 	"math/rand"
 	"strconv"
 	"sync"
@@ -29,6 +30,9 @@ func TestCache(t *testing.T) {
 		wasInCache = c.Set("bbb", 200)
 		require.False(t, wasInCache)
 
+		wasInCache = c.Set("ddd", 300)
+		require.False(t, wasInCache)
+
 		val, ok := c.Get("aaa")
 		require.True(t, ok)
 		require.Equal(t, 100, val)
@@ -36,6 +40,10 @@ func TestCache(t *testing.T) {
 		val, ok = c.Get("bbb")
 		require.True(t, ok)
 		require.Equal(t, 200, val)
+
+		val, ok = c.Get("ddd")
+		require.True(t, ok)
+		require.Equal(t, 300, val)
 
 		wasInCache = c.Set("aaa", 300)
 		require.True(t, wasInCache)
@@ -51,6 +59,21 @@ func TestCache(t *testing.T) {
 
 	t.Run("purge logic", func(t *testing.T) {
 		// Write me
+		c := NewCache(3)
+		_ = c.Set("a", 1)
+		_ = c.Set("b", 2)
+		_ = c.Set("c", 3)
+		_ = c.Set("d", 4)
+
+	
+		nilItem := new(ListItem)
+		val, _ := c.Get("a")
+        if val == nilItem {
+			val, ok := c.Get("a")
+			require.Nil(t, val)
+			require.False(t, ok)
+		}
+
 	})
 }
 
