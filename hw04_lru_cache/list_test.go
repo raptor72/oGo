@@ -1,7 +1,6 @@
 package hw04lrucache
 
 import (
-	// "fmt"
 	"testing"
 
 	"github.com/stretchr/testify/require"
@@ -50,11 +49,11 @@ func TestList(t *testing.T) {
 		require.Equal(t, []int{70, 80, 60, 40, 10, 30, 50}, elems)
 	})
 	t.Run("full MoveToFront", func(t *testing.T) {
-        // Проверка полного перебора списка методом MoveToFront
+		// Проверка полного перебора списка методом MoveToFront
 		l := NewList()
-		l.PushFront(1) // [1]
-		l.PushBack(2)  // [1, 2]
-		l.PushBack(3)  // [1, 2, 3]
+		l.PushFront(1)          // [1]
+		l.PushBack(2)           // [1, 2]
+		l.PushBack(3)           // [1, 2, 3]
 		l.MoveToFront(l.Back()) // [3, 1, 2]
 		l.MoveToFront(l.Back()) // [2, 3, 1]
 		require.Equal(t, 2, l.Front().Value)
