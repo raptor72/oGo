@@ -17,27 +17,16 @@ func Run(tasks []Task, n, m int) error {
 	var errorsCount int32
 	for i := 0; i < n; i++ {
 		wg.Add(1)
+
 		go func() {
 			defer wg.Done()
-			for {
-				select {
-				case task, ok := <-taskChan:
-					if !ok {
-						return
-					}
-					if atomic.LoadInt32(&errorsCount) >= m32 {
-						return
-					}
-					err := task()
-					if err != nil {
-						atomic.AddInt32(&errorsCount, 1)
-						if atomic.LoadInt32(&errorsCount) >= m32 {
-							return
-						}
-					}
-					break
-				default:
+			for task := range taskChan {
+				if atomic.LoadInt32(&errorsCount) >= m32 {
 					return
+				}
+				err := task()
+				if err != nil {
+					atomic.AddInt32(&errorsCount, 1)
 				}
 			}
 		}()
