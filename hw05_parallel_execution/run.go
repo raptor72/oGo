@@ -11,7 +11,8 @@ var ErrErrorsLimitExceeded = errors.New("errors limit exceeded")
 type Task func() error
 
 func Run(tasks []Task, n, m int) error {
-	taskChan := make(chan Task, n)
+	taskChan := make(chan Task, len(tasks))
+	m32 := int32(m)
 	wg := new(sync.WaitGroup)
 	var errorsCount int32
 	for i := 0; i < n; i++ {
@@ -24,15 +25,17 @@ func Run(tasks []Task, n, m int) error {
 					if !ok {
 						return
 					}
-					if atomic.LoadInt32(&errorsCount) >= int32(m) {
-						break
+					if atomic.LoadInt32(&errorsCount) >= m32 {
+						return
 					}
-					if err := task(); err != nil {
+					err := task()
+					if err != nil {
 						atomic.AddInt32(&errorsCount, 1)
-						if atomic.LoadInt32(&errorsCount) >= int32(m) {
-							break
+						if atomic.LoadInt32(&errorsCount) >= m32 {
+							return
 						}
 					}
+					break
 				default:
 					return
 				}
@@ -40,15 +43,14 @@ func Run(tasks []Task, n, m int) error {
 		}()
 	}
 	for _, task := range tasks {
-		if atomic.LoadInt32(&errorsCount) >= int32(m) {
+		if atomic.LoadInt32(&errorsCount) >= m32 {
 			break
-		} else {
-			taskChan <- task
 		}
+		taskChan <- task
 	}
-	wg.Wait()
 	close(taskChan)
-	if errorsCount >= int32(m) {
+	wg.Wait()
+	if errorsCount >= m32 {
 		return ErrErrorsLimitExceeded
 	}
 	return nil
