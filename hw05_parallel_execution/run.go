@@ -11,7 +11,7 @@ var ErrErrorsLimitExceeded = errors.New("errors limit exceeded")
 type Task func() error
 
 func Run(tasks []Task, n, m int) error {
-	taskChan := make(chan Task, len(tasks))
+	taskChan := make(chan Task)
 	m32 := int32(m)
 	wg := new(sync.WaitGroup)
 	var errorsCount int32
