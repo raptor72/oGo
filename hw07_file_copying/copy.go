@@ -4,10 +4,10 @@ import (
 	"errors"
 	"fmt"
 	"io"
-	"log"
 	"os"
 	"path"
 	"path/filepath"
+	"strings"
 )
 
 var (
@@ -28,6 +28,9 @@ func checkCondition(fromPath, toPath string, offset int64) (filePath, filePath, 
 	if srcInfo, err := os.Stat(fromPath); err != nil {
 		return from, to, err
 	} else {
+		if !srcInfo.Mode().IsRegular() {
+			return from, to, ErrUnsupportedFile
+		}
 		if srcInfo.IsDir() {
 			return from, to, ErrDadSourceFile
 		}
@@ -41,13 +44,12 @@ func checkCondition(fromPath, toPath string, offset int64) (filePath, filePath, 
 		from.filename = srcInfo.Name()
 		from.size = srcInfo.Size()
 	}
-	if _, err := os.Stat(toPath); errors.Is(err, os.ErrNotExist) {
-		return from, to, ErrBadDestination
-	} else {
-		to.absPath, err = filepath.Abs(path.Dir(toPath))
-		if err != nil {
-			return from, to, err
-		}
+
+	to.absPath = filepath.Dir(toPath)
+	to.filename = filepath.Base(toPath)
+
+	if filepath.Base(toPath) == "." || strings.HasSuffix(toPath, "/") {
+		to.filename = from.filename
 	}
 	return from, to, nil
 }
@@ -60,32 +62,34 @@ func Copy(fromPath, toPath string, offset, limit int64) error {
 
 	srcReader, err := os.Open(path.Join(from.absPath, from.filename))
 	if err != nil {
-		fmt.Println("srcReader err")
 		return err
 	}
 
-	//if offset != 0 {
-	//	_, err = srcReader.Seek(offset, 0)
-	//	if err != nil {
-	//		return err
-	//	}
-	//}
-
-	dstPath := path.Join(to.absPath, from.filename)
-	newFile, err := os.Create(dstPath)
-	if err != nil {
-		log.Fatal(err)
+	if offset != 0 {
+		_, err := srcReader.Seek(offset, os.SEEK_SET)
+		if err != nil {
+			return err
+		}
 	}
 
-	fmt.Println(newFile.Name())
-
-	dstWriter, err := os.OpenFile(newFile.Name(), os.O_APPEND|os.O_WRONLY, os.ModeAppend)
+	dstPath := filepath.Join(to.absPath, to.filename)
+	fmt.Println("dstpath!: ", dstPath)
+	_, err = os.Create(dstPath)
 	if err != nil {
-		fmt.Println("dstWriter error")
+		err = fmt.Errorf("%s. Detail: %w, Third error", ErrBadDestination, err)
 		return err
 	}
 
-	if limit == 0 || limit > from.size {
+	dstWriter, err := os.OpenFile(dstPath, os.O_APPEND|os.O_WRONLY, os.ModeAppend)
+	if err != nil {
+		return err
+	}
+
+	if limit+offset > from.size {
+		limit = from.size - offset
+	}
+
+	if limit > from.size || limit == 0 {
 		limit = from.size
 	}
 
@@ -95,11 +99,6 @@ func Copy(fromPath, toPath string, offset, limit int64) error {
 		return err
 	}
 	fmt.Printf("Copy %v bytes\n", byteLen)
-
-	//fmt.Println(from.absPath)
-	//fmt.Println(from.filename)
-	//fmt.Println(to.absPath)
-	//fmt.Println(to.filename)
 
 	return nil
 }

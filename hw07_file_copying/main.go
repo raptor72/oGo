@@ -19,6 +19,7 @@ func init() {
 
 func main() {
 	flag.Parse()
-	err := Copy(*&from, *&to, *&limit, *&offset)
+	fmt.Println(offset)
+	err := Copy(*&from, *&to, *&offset, *&limit)
 	fmt.Printf("Got err %v in main\n", err)
 }
