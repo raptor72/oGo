@@ -8,12 +8,14 @@ import (
 	"path"
 	"path/filepath"
 	"strings"
+
+	"github.com/cheggaaa/pb/v3"
 )
 
 var (
 	ErrUnsupportedFile       = errors.New("unsupported file")
 	ErrOffsetExceedsFileSize = errors.New("offset exceeds file size")
-	ErrDadSourceFile         = errors.New("source file is not exists")
+	ErrBadSourceFile         = errors.New("source file is not exists")
 	ErrBadDestination        = errors.New("bad destination to copy")
 )
 
@@ -25,25 +27,23 @@ type filePath struct {
 
 func checkCondition(fromPath, toPath string, offset int64) (filePath, filePath, error) {
 	from, to := filePath{}, filePath{}
-	if srcInfo, err := os.Stat(fromPath); err != nil {
+	srcInfo, err := os.Stat(fromPath)
+	if err != nil {
+		err = fmt.Errorf("%s. Detail: %w", ErrBadSourceFile, err)
 		return from, to, err
-	} else {
-		if !srcInfo.Mode().IsRegular() {
-			return from, to, ErrUnsupportedFile
-		}
-		if srcInfo.IsDir() {
-			return from, to, ErrDadSourceFile
-		}
-		if offset > srcInfo.Size() {
-			return from, to, ErrOffsetExceedsFileSize
-		}
-		from.absPath, err = filepath.Abs(path.Dir(fromPath))
-		if err != nil {
-			return from, to, err
-		}
-		from.filename = srcInfo.Name()
-		from.size = srcInfo.Size()
 	}
+	if !srcInfo.Mode().IsRegular() {
+		return from, to, ErrUnsupportedFile
+	}
+	if offset > srcInfo.Size() {
+		return from, to, ErrOffsetExceedsFileSize
+	}
+	from.absPath, err = filepath.Abs(path.Dir(fromPath))
+	if err != nil {
+		return from, to, err
+	}
+	from.filename = srcInfo.Name()
+	from.size = srcInfo.Size()
 
 	to.absPath = filepath.Dir(toPath)
 	to.filename = filepath.Base(toPath)
@@ -66,17 +66,16 @@ func Copy(fromPath, toPath string, offset, limit int64) error {
 	}
 
 	if offset != 0 {
-		_, err := srcReader.Seek(offset, os.SEEK_SET)
+		_, err := srcReader.Seek(offset, 0)
 		if err != nil {
 			return err
 		}
 	}
 
 	dstPath := filepath.Join(to.absPath, to.filename)
-	fmt.Println("dstpath!: ", dstPath)
 	_, err = os.Create(dstPath)
 	if err != nil {
-		err = fmt.Errorf("%s. Detail: %w, Third error", ErrBadDestination, err)
+		err = fmt.Errorf("%s. Detail: %w", ErrBadDestination, err)
 		return err
 	}
 
@@ -93,12 +92,13 @@ func Copy(fromPath, toPath string, offset, limit int64) error {
 		limit = from.size
 	}
 
-	byteLen, err := io.CopyN(dstWriter, srcReader, limit)
+	bar := pb.Full.Start64(limit)
+	barReader := bar.NewProxyReader(srcReader)
+
+	_, err = io.CopyN(dstWriter, barReader, limit)
 	if err != nil {
-		fmt.Println("io.CopyN error")
 		return err
 	}
-	fmt.Printf("Copy %v bytes\n", byteLen)
-
+	bar.Finish()
 	return nil
 }

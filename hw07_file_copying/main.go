@@ -2,7 +2,6 @@ package main
 
 import (
 	"flag"
-	"fmt"
 )
 
 var (
@@ -19,7 +18,5 @@ func init() {
 
 func main() {
 	flag.Parse()
-	fmt.Println(offset)
-	err := Copy(*&from, *&to, *&offset, *&limit)
-	fmt.Printf("Got err %v in main\n", err)
+	Copy(from, to, offset, limit)
 }
