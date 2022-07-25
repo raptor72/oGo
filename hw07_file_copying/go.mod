@@ -2,11 +2,13 @@ module github.com/raptor72/oGo/hw07_file_copying
 
 go 1.18
 
-require github.com/stretchr/testify v1.8.0
+require (
+	github.com/cheggaaa/pb/v3 v3.1.0
+	github.com/stretchr/testify v1.8.0
+)
 
 require (
 	github.com/VividCortex/ewma v1.2.0 // indirect
-	github.com/cheggaaa/pb/v3 v3.1.0 // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/fatih/color v1.13.0 // indirect
 	github.com/mattn/go-colorable v0.1.12 // indirect

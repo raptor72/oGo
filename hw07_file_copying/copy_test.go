@@ -2,6 +2,8 @@ package main
 
 import (
 	"errors"
+	"log"
+	"os"
 	"testing"
 
 	"github.com/stretchr/testify/require"
@@ -17,8 +19,15 @@ func TestCopyIrregularFile(t *testing.T) {
 	}
 	for _, tc := range tests {
 		tc := tc
+
+		tmpOut, err := os.CreateTemp("", "out.txt")
+		if err != nil {
+			log.Fatal(err)
+		}
+		defer os.Remove(tmpOut.Name())
+
 		t.Run(tc.from, func(t *testing.T) {
-			err := Copy(tc.from, "/tmp/out.txt", 0, 0)
+			err := Copy(tc.from, tmpOut.Name(), 0, 0)
 			require.Truef(t, errors.Is(err, ErrUnsupportedFile), "actual error %q", err)
 		})
 	}
@@ -32,10 +41,18 @@ func TestOffsetExceedFileSize(t *testing.T) {
 		{"6618", 6618},
 		{"10000", 10000},
 	}
+
 	for _, tc := range tests {
 		tc := tc
+
+		tmpOut, err := os.CreateTemp("", "out.txt")
+		if err != nil {
+			log.Fatal(err)
+		}
+		defer os.Remove(tmpOut.Name())
+
 		t.Run(tc.str, func(t *testing.T) {
-			err := Copy("testdata/input.txt", "/tmp/out.txt", tc.i64, 0)
+			err := Copy("testdata/input.txt", tmpOut.Name(), tc.i64, 0)
 			require.Truef(t, errors.Is(err, ErrOffsetExceedsFileSize), "actual error %q", err)
 		})
 	}
@@ -50,8 +67,15 @@ func TestBadSourceFile(t *testing.T) {
 	}
 	for _, tc := range tests {
 		tc := tc
+
+		tmpOut, err := os.CreateTemp("", "out.txt")
+		if err != nil {
+			log.Fatal(err)
+		}
+		defer os.Remove(tmpOut.Name())
+
 		t.Run(tc.from, func(t *testing.T) {
-			err := Copy(tc.from, "/tmp/out.txt", 0, 0)
+			err := Copy(tc.from, tmpOut.Name(), 0, 0)
 			require.ErrorContains(t, err, ErrBadSourceFile.Error())
 		})
 	}

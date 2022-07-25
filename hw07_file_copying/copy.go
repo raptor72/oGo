@@ -65,6 +65,11 @@ func Copy(fromPath, toPath string, offset, limit int64) error {
 		return err
 	}
 
+	err = srcReader.Close()
+	if err != nil {
+		return err
+	}
+
 	if offset != 0 {
 		_, err := srcReader.Seek(offset, 0)
 		if err != nil {
@@ -79,7 +84,7 @@ func Copy(fromPath, toPath string, offset, limit int64) error {
 		return err
 	}
 
-	dstWriter, err := os.OpenFile(dstPath, os.O_APPEND|os.O_WRONLY, os.ModeAppend)
+	dstWriter, err := os.Create(dstPath)
 	if err != nil {
 		return err
 	}
