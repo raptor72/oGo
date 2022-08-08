@@ -1,7 +1,22 @@
 package main
 
-import "testing"
+import (
+	"io/ioutil"
+	"log"
+	"os"
+	"testing"
 
-func TestReadDir(t *testing.T) {
-	// Place your code here
+	"github.com/stretchr/testify/require"
+)
+
+func TestReadEmptyDir(t *testing.T) {
+	expected := make(Environment)
+	dir, err := ioutil.TempDir(".", "tempdir")
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer os.RemoveAll(dir)
+	result, err := ReadDir(dir)
+	require.NoError(t, err)
+	require.Equal(t, expected, result)
 }
