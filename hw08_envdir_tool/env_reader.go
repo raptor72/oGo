@@ -5,8 +5,8 @@ import (
 	"bytes"
 	"errors"
 	"io"
-	"io/ioutil"
 	"os"
+	"path/filepath"
 	"strings"
 )
 
@@ -23,40 +23,35 @@ type EnvValue struct {
 func ReadDir(dir string) (Environment, error) {
 	envArray := make(Environment)
 
-	files, err := ioutil.ReadDir(dir)
+	files, err := os.ReadDir(dir)
 	if err != nil {
 		return nil, err
 	}
 
 	for _, file := range files {
-		if !file.Mode().IsRegular() {
+		if !file.Type().IsRegular() {
 			continue
 		}
 
 		var envVar EnvValue
 
-		fileReader, err := os.Open(dir + "/" + file.Name())
+		fileReader, err := os.Open(filepath.Join(dir, file.Name()))
 		if err != nil {
 			return nil, err
 		}
 		r := bufio.NewReader(fileReader)
-		line, _, err := r.ReadLine()
+
+		line, err := r.ReadBytes('\n')
 		if err != nil {
-			if errors.Is(err, io.EOF) {
+			if errors.Is(err, io.EOF) && len(line) == 0 {
 				// Файл пустой, переменная окружения должна быть удалены
 				envVar.NeedRemove = true
-			} else {
-				return nil, nil
 			}
 		}
 		// Удаляем терминальные нули
 		line = bytes.ReplaceAll(line, []byte("\000"), []byte("\n"))
 		// Удаляем пробелы табы и знак равно в конце строки
-		value := strings.TrimRight(string(line), "\t =")
-
-		if len(value) == 0 {
-			envVar.NeedRemove = true
-		}
+		value := strings.TrimRight(string(line), "\n\t =")
 		envVar.Value = value
 		envArray[file.Name()] = envVar
 	}
