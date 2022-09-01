@@ -1,0 +1,80 @@
+Type: cpu
+Time: Sep 1, 2022 at 9:22pm (+04)
+Duration: 707.97ms, Total samples = 330ms (46.61%)
+Showing nodes accounting for -330ms, 100% of 330ms total
+      flat  flat%   sum%        cum   cum%
+     -80ms 24.24% 24.24%      -80ms 24.24%  runtime.memclrNoHeapPointers
+     -30ms  9.09% 33.33%      -30ms  9.09%  runtime.memmove
+     -20ms  6.06% 39.39%     -210ms 63.64%  regexp.compile
+     -20ms  6.06% 45.45%      -20ms  6.06%  runtime.(*mspan).init (inline)
+     -20ms  6.06% 51.52%      -20ms  6.06%  runtime.heapBitsSetType
+     -20ms  6.06% 57.58%      -90ms 27.27%  runtime.newobject
+     -10ms  3.03% 60.61%     -100ms 30.30%  github.com/fixme_my_friend/hw10_program_optimization.TestGetDomainStat.func3
+     -10ms  3.03% 63.64%     -250ms 75.76%  github.com/fixme_my_friend/hw10_program_optimization.countDomains
+     -10ms  3.03% 66.67%      -10ms  3.03%  github.com/fixme_my_friend/hw10_program_optimization.getUsers
+     -10ms  3.03% 69.70%      -10ms  3.03%  regexp/syntax.(*parser).maybeConcat
+     -10ms  3.03% 72.73%      -10ms  3.03%  runtime.(*fixalloc).alloc
+     -10ms  3.03% 75.76%      -10ms  3.03%  runtime.(*mheap).freeSpan
+     -10ms  3.03% 78.79%      -10ms  3.03%  runtime.(*mspan).refillAllocCache
+     -10ms  3.03% 81.82%      -10ms  3.03%  runtime.getMCache (inline)
+     -10ms  3.03% 84.85%     -160ms 48.48%  runtime.mallocgc
+     -10ms  3.03% 87.88%      -10ms  3.03%  runtime.nanotime_trampoline
+     -10ms  3.03% 90.91%      -10ms  3.03%  runtime.pthread_cond_signal
+     -10ms  3.03% 93.94%      -10ms  3.03%  runtime.pthread_kill
+     -10ms  3.03% 96.97%      -10ms  3.03%  runtime.scanblock
+     -10ms  3.03%   100%      -20ms  6.06%  runtime.suspendG
+         0     0%   100%     -260ms 78.79%  github.com/fixme_my_friend/hw10_program_optimization.GetDomainStat
+         0     0%   100%      -90ms 27.27%  github.com/fixme_my_friend/hw10_program_optimization.TestGetDomainStat.func1
+         0     0%   100%      -80ms 24.24%  github.com/fixme_my_friend/hw10_program_optimization.TestGetDomainStat.func2
+         0     0%   100%     -210ms 63.64%  regexp.Compile (inline)
+         0     0%   100%     -210ms 63.64%  regexp.Match
+         0     0%   100%      -60ms 18.18%  regexp/syntax.(*compiler).compile
+         0     0%   100%      -10ms  3.03%  regexp/syntax.(*compiler).init (inline)
+         0     0%   100%      -70ms 21.21%  regexp/syntax.(*compiler).inst (inline)
+         0     0%   100%      -60ms 18.18%  regexp/syntax.(*compiler).rune
+         0     0%   100%      -80ms 24.24%  regexp/syntax.(*parser).literal
+         0     0%   100%      -70ms 21.21%  regexp/syntax.(*parser).newRegexp (inline)
+         0     0%   100%      -30ms  9.09%  regexp/syntax.(*parser).push
+         0     0%   100%      -70ms 21.21%  regexp/syntax.Compile
+         0     0%   100%     -100ms 30.30%  regexp/syntax.Parse (inline)
+         0     0%   100%     -100ms 30.30%  regexp/syntax.parse
+         0     0%   100%     -100ms 30.30%  runtime.(*mcache).nextFree
+         0     0%   100%     -100ms 30.30%  runtime.(*mcache).refill
+         0     0%   100%     -100ms 30.30%  runtime.(*mcentral).cacheSpan
+         0     0%   100%      -90ms 27.27%  runtime.(*mcentral).grow
+         0     0%   100%      -60ms 18.18%  runtime.(*mheap).alloc
+         0     0%   100%      -60ms 18.18%  runtime.(*mheap).alloc.func1
+         0     0%   100%      -10ms  3.03%  runtime.(*mheap).allocMSpanLocked
+         0     0%   100%      -60ms 18.18%  runtime.(*mheap).allocSpan
+         0     0%   100%      -10ms  3.03%  runtime.(*sweepLocked).sweep
+         0     0%   100%      -10ms  3.03%  runtime.bgsweep
+         0     0%   100%      -10ms  3.03%  runtime.concatstring2
+         0     0%   100%      -10ms  3.03%  runtime.concatstrings
+         0     0%   100%      -20ms  6.06%  runtime.copystack
+         0     0%   100%      -20ms  6.06%  runtime.gcBgMarkWorker
+         0     0%   100%      -30ms  9.09%  runtime.gcBgMarkWorker.func2
+         0     0%   100%      -30ms  9.09%  runtime.gcDrain
+         0     0%   100%      -10ms  3.03%  runtime.gopreempt_m
+         0     0%   100%      -10ms  3.03%  runtime.goschedImpl
+         0     0%   100%      -90ms 27.27%  runtime.growslice
+         0     0%   100%      -30ms  9.09%  runtime.heapBits.initSpan
+         0     0%   100%      -30ms  9.09%  runtime.markroot
+         0     0%   100%      -30ms  9.09%  runtime.markroot.func1
+         0     0%   100%      -10ms  3.03%  runtime.morestack
+         0     0%   100%      -10ms  3.03%  runtime.newAllocBits
+         0     0%   100%      -30ms  9.09%  runtime.newArenaMayUnlock
+         0     0%   100%      -30ms  9.09%  runtime.newMarkBits
+         0     0%   100%      -30ms  9.09%  runtime.newstack
+         0     0%   100%      -10ms  3.03%  runtime.notewakeup
+         0     0%   100%      -10ms  3.03%  runtime.preemptM
+         0     0%   100%      -10ms  3.03%  runtime.rawstring
+         0     0%   100%      -10ms  3.03%  runtime.rawstringtmp
+         0     0%   100%      -10ms  3.03%  runtime.scanstack
+         0     0%   100%      -10ms  3.03%  runtime.schedule
+         0     0%   100%      -10ms  3.03%  runtime.semawakeup
+         0     0%   100%      -10ms  3.03%  runtime.signalM (inline)
+         0     0%   100%      -10ms  3.03%  runtime.startm
+         0     0%   100%      -10ms  3.03%  runtime.sweepone
+         0     0%   100%      -90ms 27.27%  runtime.systemstack
+         0     0%   100%      -10ms  3.03%  runtime.wakep
+         0     0%   100%     -270ms 81.82%  testing.tRunner

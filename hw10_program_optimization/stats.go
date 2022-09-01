@@ -44,7 +44,7 @@ func processByteLine(line []byte, mapCounter DomainStat, domain string) error {
 	}
 
 	if strings.HasSuffix(user.Email, domain) {
-		_, mail, _ := strings.Cut(user.Email, "@")
+		mail := strings.Split(user.Email, "@")[1]
 		mail = strings.ToLower(mail)
 		mapCounter[mail]++
 	}
