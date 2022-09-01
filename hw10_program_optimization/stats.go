@@ -1,67 +1,73 @@
 package hw10programoptimization
 
 import (
-	"encoding/json"
+	"bufio"
+	"errors"
 	"fmt"
 	"io"
-	"io/ioutil"
-	"regexp"
 	"strings"
+
+	"github.com/mailru/easyjson"
 )
 
 type User struct {
-	ID       int
-	Name     string
-	Username string
-	Email    string
-	Phone    string
-	Password string
-	Address  string
+	Email string
 }
 
 type DomainStat map[string]int
 
 func GetDomainStat(r io.Reader, domain string) (DomainStat, error) {
-	u, err := getUsers(r)
+	dmn := strings.Join([]string{".", domain}, "")
+	u, err := getUsers(r, dmn)
 	if err != nil {
 		return nil, fmt.Errorf("get users error: %w", err)
 	}
-	return countDomains(u, domain)
+	return *u, nil
 }
 
-type users [100_000]User
+func getUsers(r io.Reader, domain string) (*DomainStat, error) {
+	mapCounter := make(DomainStat)
 
-func getUsers(r io.Reader) (result users, err error) {
-	content, err := ioutil.ReadAll(r)
+	err := readByChunks(r, &mapCounter, domain)
 	if err != nil {
-		return
+		return nil, err
 	}
 
-	lines := strings.Split(string(content), "\n")
-	for i, line := range lines {
-		var user User
-		if err = json.Unmarshal([]byte(line), &user); err != nil {
-			return
-		}
-		result[i] = user
-	}
-	return
+	return &mapCounter, nil
 }
 
-func countDomains(u users, domain string) (DomainStat, error) {
-	result := make(DomainStat)
+func processByteLine(line []byte, mapCounter DomainStat, domain string) error {
+	var user User
 
-	for _, user := range u {
-		matched, err := regexp.Match("\\."+domain, []byte(user.Email))
+	if err := easyjson.Unmarshal(line, &user); err != nil {
+		return err
+	}
+
+	if strings.HasSuffix(user.Email, domain) {
+		_, mail, _ := strings.Cut(user.Email, "@")
+		mail = strings.ToLower(mail)
+		mapCounter[mail]++
+	}
+	return nil
+}
+
+func readByChunks(r io.Reader, mapCounter *DomainStat, domain string) error {
+	reader := bufio.NewReader(r)
+
+	for {
+		line, err := reader.ReadBytes('\n')
 		if err != nil {
-			return nil, err
+			if !errors.Is(err, io.EOF) {
+				return err
+			}
 		}
 
-		if matched {
-			num := result[strings.ToLower(strings.SplitN(user.Email, "@", 2)[1])]
-			num++
-			result[strings.ToLower(strings.SplitN(user.Email, "@", 2)[1])] = num
+		err = processByteLine(line, *mapCounter, domain)
+
+		if err != nil {
+			if errors.Is(err, io.EOF) {
+				return nil
+			}
 		}
 	}
-	return result, nil
 }
