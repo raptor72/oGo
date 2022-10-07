@@ -7,13 +7,6 @@ import (
 	"time"
 )
 
-type TelnetClient interface {
-	Connect() error
-	io.Closer
-	Send() error
-	Receive() error
-}
-
 type Telnet struct {
 	address string
 	timeout time.Duration

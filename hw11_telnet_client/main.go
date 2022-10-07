@@ -14,8 +14,7 @@ import (
 )
 
 func main() {
-	err := run()
-	if err != nil {
+	if err := run(); err != nil {
 		log.Fatal(err)
 	}
 }
@@ -27,15 +26,13 @@ func run() error {
 
 	args := flag.Args()
 	if len(args) < 2 || len(args) > 3 {
-		//if len(args) != 2 {
 		return errors.New("count of args should be two or three")
 	}
 
 	address := net.JoinHostPort(args[0], args[1])
 
 	client := NewTelnetClient(address, timeout, os.Stdin, os.Stdout)
-	err := client.Connect()
-	if err != nil {
+	if err := client.Connect(); err != nil {
 		return err
 	}
 	fmt.Fprintf(os.Stderr, "...Connected to %s\n", address)
